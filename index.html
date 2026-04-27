@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checklists Smart Hands – Blueberry Group Corp</title>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+  <style>
+    :root {
+      --primary: #2862b9;
+      --accent: #4d9a4e;
+      --secondary: #1c4583;
+      --bg: #FFFFFF;
+      --light-bg: #f4f8fc;
+      --text: #333333;
+      --border: #dee2e6;
+      --success: #4d9a4e;
+      --warning: #ffc107;
+      --danger: #dc3545;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--light-bg);
+      color: var(--text);
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: var(--bg);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+    header {
+      background: var(--primary);
+      color: #fff;
+      padding: 25px 30px;
+      border-bottom: 5px solid var(--secondary);
+    }
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 15px;
+    }
+    .logo { font-size: 26px; font-weight: 700; letter-spacing: 0.5px; }
+    .logo span { color: #a8d8a8; }
+    .project-meta { font-size: 14px; opacity: 0.9; }
+    .btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      padding: 12px 24px;
+      font-size: 15px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .btn:hover { background: #3a803a; transform: translateY(-1px); }
+    .btn-secondary { background: var(--secondary); }
+    .btn-secondary:hover { background: #153565; }
+    .btn-outline {
+      background: transparent;
+      border: 2px solid var(--primary);
+      color: var(--primary);
+    }
+    .btn-outline:hover { background: var(--primary); color: #fff; }
+    nav {
+      background: var(--secondary);
+      padding: 10px 30px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    nav a {
+      color: #e0e8f0;
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+    nav a:hover, nav a.active {
+      background: rgba(255,255,255,0.15);
+      color: #fff;
+    }
+    main { padding: 25px 30px; }
+    .card {
+      background: #fff;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    h2 {
+      margin: 25px 0 10px 0;
+      color: var(--primary);
+      font-size: 20px;
+      border-left: 4px solid var(--accent);
+      padding-left: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background: var(--primary);
+      color: #fff;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    tr:nth-child(even) { background: #f8fafc; }
+    tr:hover { background: #edf4fc; }
+    input[type="text"], input[type="date"], input[type="number"], input[type="password"], select, textarea {
+      width: 100%;
+      padding: 7px 10px;
+      border: 1px solid #ced4da;
+      border-radius: 5px;
+      font-family: inherit;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--primary);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(40,98,185,0.15);
+    }
+    input[type="checkbox"] { transform: scale(1.3); cursor: pointer; }
+    .status-select { min-width: 120px; }
+    .progress-bar {
+      height: 8px;
+      background: #e9ecef;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 10px;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--accent);
+      transition: width 0.3s;
+    }
+    .photo-section {
+      background: linear-gradient(135deg, #f4f8fc 0%, #ffffff 100%);
+      border: 2px dashed var(--primary);
+      border-radius: 8px;
+      padding: 25px;
+      text-align: center;
+      margin: 20px 0;
+    }
+    .photo-drop {
+      border: 2px dashed #a0c4ff;
+      border-radius: 8px;
+      padding: 40px 20px;
+      background: #f8fbff;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    .photo-drop:hover { background: #edf4fc; border-color: var(--primary); }
+    .photo-drop.dragover { background: #e0eeff; border-color: var(--accent); transform: scale(1.02); }
+    .config-panel {
+      background: #fff8e1;
+      border: 1px solid #ffe082;
+      border-radius: 6px;
+      padding: 15px;
+      margin-bottom: 15px;
+    }
+    .config-panel h4 { margin: 0 0 10px 0; color: #6d4c00; }
+    .badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-success { background: #d4edda; color: #155724; }
+    .badge-warning { background: #fff3cd; color: #856404; }
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 15px;
+    }
+    .gallery-item {
+      border-radius: 6px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    .gallery-item img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+    }
+    .gallery-item .filename {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      font-size: 10px;
+      padding: 4px;
+      text-align: center;
+    }
+    footer {
+      background: var(--secondary);
+      color: #d0dae5;
+      text-align: center;
+      padding: 20px;
+      font-size: 13px;
+    }
+    .tooltip {
+      position: relative;
+      cursor: help;
+      border-bottom: 1px dotted var(--primary);
+    }
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: var(--success);
+      color: #fff;
+      padding: 15px 20px;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+      transform: translateX(400px);
+      transition: transform 0.3s ease;
+    }
+    .notification.show { transform: translateX(0); }
+    .notification.error { background: var(--danger); }
+    @media (max-width: 768px) {
+      .container { border-radius: 0; }
+      main { padding: 15px; }
+      th, td { padding: 8px; font-size: 12px; }
+      .header-top { flex-direction: column; align-items: flex-start; }
+      nav { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="notification" id="notification"></div>
+  
+  <div class="container">
+    <header>
+      <div class="header-top">
+        <div>
+          <div class="logo">🔵 BLUEBERRY <span>GROUP CORP</span></div>
+          <div class="project-meta">Checklists de Seguimiento Diario | Instalación en Datacenter (Turnkey) | Cliente: WOM Colombia</div>
+        </div>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn" onclick="exportToExcel()">📥 Exportar a Excel</button>
+          <button class="btn btn-secondary" onclick="scrollToSection('photo')">📸 Registro Fotográfico</button>
+        </div>
+      </div>
+    </header>
+
+    <nav>
+      <a href="#fase1" class="nav-link">Fase 1</a>
+      <a href="#fase2" class="nav-link">Fase 2</a>
+      <a href="#fase3" class="nav-link">Fase 3</a>
+      <a href="#fase4" class="nav-link">Fase 4</a>
+      <a href="#reporte" class="nav-link">Reporte</a>
+      <a href="#control" class="nav-link">Control</a>
+      <a href="#photo" class="nav-link">Fotos</a>
+    </nav>
+
+    <main>
+      <!-- CONFIGURACIÓN GITHUB -->
+      <div class="config-panel" id="config-github">
+        <h4>⚙️ Configuración de Repositorio GitHub</h4>
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap:10px;">
+          <input type="text" id="github-user" placeholder="Usuario GitHub">
+          <input type="text" id="github-repo" placeholder="Nombre del repositorio">
+          <input type="password" id="github-token" placeholder="Personal Access Token (PAT)">
+          <button class="btn" onclick="saveGithubConfig()">💾 Guardar</button>
+        </div>
+        <small style="display:block; margin-top:8px; color:#6d4c00;">🔒 El token solo se almacena localmente en tu navegador. Nunca se comparte.</small>
+      </div>
+
+      <!-- FASE 1 -->
+      <section id="fase1" class="card">
+        <h2>🔹 FASE 1 – Preparación (Día 1) <span class="badge badge-success">10 Actividades</span></h2>
+        <div class="progress-bar"><div class="progress-fill" id="prog-fase1" style="width:0%"></div></div>
+        <table>
+          <thead><tr><th width="10%">ID</th><th width="35%">Actividad</th><th width="15%">Categoría</th><th width="15%">Estado</th><th width="25%">Observaciones</th></tr></thead>
+          <tbody id="tb-fase1"></tbody>
+        </table>
+      </section>
+
+      <!-- FASE 2 -->
+      <section id="fase2" class="card">
+        <h2>🔹 FASE 2 – Instalación y Conexión (Días 2-8) <span class="badge badge-warning">Plantilla Diaria</span></h2>
+        <div style="margin-bottom:15px; display:flex; gap:10px; align-items:center;">
+          <label>Día: <input type="number" id="dia-fase2" min="2" max="8" value="2" style="width:60px; display:inline-block;"></label>
+          <button class="btn" onclick="loadDiaFase2()">📅 Cargar Día</button>
+        </div>
+        <div class="progress-bar"><div class="progress-fill" id="prog-fase2" style="width:0%"></div></div>
+        <table>
+          <thead><tr><th width="10%">ID</th><th width="35%">Actividad</th><th width="10%">Momento</th><th width="15%">Estado</th><th width="15%">Meta</th><th width="15%">Real</th><th width="15%">Observaciones</th></tr></thead>
+          <tbody id="tb-fase2"></tbody>
+        </table>
+      </section>
+
+      <!-- FASE 3 -->
+      <section id="fase3" class="card">
+        <h2>🔹 FASE 3 – Marquillado y Organización (Día 9) <span class="badge badge-success">7 Actividades</span></h2>
+        <div class="progress-bar"><div class="progress-fill" id="prog-fase3" style="width:0%"></div></div>
+        <table>
+          <thead><tr><th width="10%">ID</th><th width="40%">Actividad</th><th width="15%">Categoría</th><th width="15%">Estado</th><th width="20%">Verificación</th></tr></thead>
+          <tbody id="tb-fase3"></tbody>
+        </table>
+      </section>
+
+      <!-- FASE 4 -->
+      <section id="fase4" class="card">
+        <h2>🔹 FASE 4 – Validación y Cierre (Día 10) <span class="badge badge-success">7 Actividades</span></h2>
+        <div class="progress-bar"><div class="progress-fill" id="prog-fase4" style="width:0%"></div></div>
+        <table>
+          <thead><tr><th width="10%">ID</th><th width="40%">Actividad</th><th width="15%">Categoría</th><th width="15%">Estado</th><th width="20%">Evidencia</th></tr></thead>
+          <tbody id="tb-fase4"></tbody>
+        </table>
+      </section>
+
+      <!-- REPORTE DIARIO -->
+      <section id="reporte" class="card">
+        <h2>📊 Reporte Diario de Avance</h2>
+        <table>
+          <thead><tr><th width="30%">Campo</th><th width="70%">Registro</th></tr></thead>
+          <tbody id="tb-reporte"></tbody>
+        </table>
+      </section>
+
+      <!-- CONTROL DE PROGRESO -->
+      <section id="control" class="card">
+        <h2>📈 Control de Progreso Acumulado</h2>
+        <table>
+          <thead><tr><th>Día</th><th>Meta</th><th>Real Día</th><th>Acumulado</th><th>%</th><th>Observaciones</th></tr></thead>
+          <tbody id="tb-control"></tbody>
+        </table>
+      </section>
+
+      <!-- REGISTRO FOTOGRÁFICO -->
+      <section id="photo" class="card">
+        <h2>📸 Registro Fotográfico de Avances</h2>
+        <div class="photo-section">
+          <div class="photo-drop" id="drop-zone" onclick="document.getElementById('file-input').click()">
+            <div style="font-size:40px; margin-bottom:10px;">📷</div>
+            <div style="font-size:16px; color:var(--secondary); margin-bottom:5px;">Arrastra fotos aquí o haz clic para seleccionar</div>
+            <small style="color:#666;">Formatos: JPG, PNG | Tamaño máximo: 4MB por imagen</small>
+            <input type="file" id="file-input" multiple accept="image/*" style="display:none;" onchange="handleFileSelect(event)">
+          </div>
+          <div style="margin-top:15px;">
+            <label>Carpeta destino: <input type="text" id="photo-folder" placeholder="e.g., photos/2024/03/15" style="width:250px; display:inline-block;"></label>
+            <button class="btn" onclick="uploadAllPhotos()">☁️ Subir a GitHub</button>
+          </div>
+          <div class="gallery" id="photo-gallery"></div>
+          <div id="upload-progress" style="margin-top:10px;"></div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      🔵 Blueberry Group Corp | “We deploy with precision. We deliver with confidence.”<br>
+      <span style="font-size:11px;">Documento generado para uso interno | v2.0 | Compatible con Excel 2016+ / GitHub</span>
+    </footer>
+  </div>
+
+  <script>
+    // ===== DATOS DE LAS FASES =====
+    const fases = {
+      fase1: [
+        {id:'P1-01', act:'Validar documentación HSE vigente (ARL, trabajo en alturas)', cat:'Documentación'},
+        {id:'P1-02', act:'Completar inducción HSE del cliente', cat:'HSE'},
+        {id:'P1-03', act:'Verificar EPP completo (casco, gafas, guantes, calzado, arnés)', cat:'HSE'},
+        {id:'P1-04', act:'Revisar inventario de materiales (fibra, MPO, UTP, patch cords, marquillas, velcro)', cat:'Materiales'},
+        {id:'P1-05', act:'Coordinar puntos de contacto con equipo del cliente', cat:'Coordinación'},
+        {id:'P1-06', act:'Verificar disponibilidad de racks, ODF y rutas de cableado', cat:'Infraestructura'},
+        {id:'P1-07', act:'Confirmar ventanas de trabajo autorizadas', cat:'Planificación'},
+        {id:'P1-08', act:'Reporte de avance enviado (formato acordado)', cat:'Reporte'},
+        {id:'P1-09', act:'Registro fotográfico de condiciones iniciales', cat:'Evidencia'},
+        {id:'P1-10', act:'Novedades o bloqueantes documentados y comunicados', cat:'Gestión'}
+      ],
+      fase2: [
+        {id:'I2-01', act:'Reunión de 5 min: revisión de actividades y riesgos HSE', mom:'Inicio', meta:'-'},
+        {id:'I2-02', act:'Verificar herramientas y materiales del día', mom:'Inicio', meta:'-'},
+        {id:'I2-03', act:'Confirmar acceso a zonas de trabajo con cliente', mom:'Inicio', meta:'-'},
+        {id:'I2-04', act:'Tendido de cableado con control de radio de curvatura', mom:'Ejecución', meta:'-'},
+        {id:'I2-05', act:'Conexión E2E de patch cords con validación visual', mom:'Ejecución', meta:'26-27'},
+        {id:'I2-06', act:'Organización en bandejas/racks: uso de velcro, sin tensión', mom:'Ejecución', meta:'-'},
+        {id:'I2-07', act:'Gestión de excedentes: almacenamiento o retiro', mom:'Ejecución', meta:'-'},
+        {id:'I2-08', act:'Marquillado provisional si aplica', mom:'Ejecución', meta:'-'},
+        {id:'I2-09', act:'Cumplimiento de normas HSE en todo momento', mom:'Ejecución', meta:'-'},
+        {id:'I2-10', act:'Limpieza técnica del área de trabajo', mom:'Cierre', meta:'-'},
+        {id:'I2-11', act:'Registro fotográfico del avance (antes/después por rack)', mom:'Cierre', meta:'Min. 8'},
+        {id:'I2-12', act:'Actualizar checklist de instalación (enlaces completados)', mom:'Cierre', meta:'26-27'},
+        {id:'I2-13', act:'Reporte diario de avance enviado (% progreso + observaciones)', mom:'Cierre', meta:'-'},
+        {id:'I2-14', act:'Validación remota/presencial con cliente', mom:'Cierre', meta:'Si aplica'}
+      ],
+      fase3: [
+        {id:'M3-01', act:'Etiquetado final en ambos extremos (estándar datacenter)', cat:'Identificación', ver:'Legible y resistente'},
+        {id:'M3-02', act:'Verificar legibilidad y resistencia de marquillas', cat:'Calidad', ver:'Prueba visual/táctil'},
+        {id:'M3-03', act:'Organización final vertical/horizontal con velcro', cat:'Organización', ver:'Sin amarres plásticos en fibra'},
+        {id:'M3-04', act:'Validar que no haya cables sueltos o tensionados', cat:'Calidad', ver:'Revisión 100% enlaces'},
+        {id:'M3-05', act:'Limpieza profunda de racks y ODF', cat:'Limpieza', ver:'Área libre de residuos'},
+        {id:'M3-06', act:'Registro fotográfico final de organización', cat:'Evidencia', ver:'Fotos por rack/ODF'},
+        {id:'M3-07', act:'Checklist de instalación 100% completado', cat:'Cierre', ver:'185/185 enlaces'}
+      ],
+      fase4: [
+        {id:'V4-01', act:'Prueba de conectividad básica en 185 enlaces', cat:'Validación', evi:'Registro OK/Falla por enlace'},
+        {id:'V4-02', act:'Revisión final de estándares: orden, trazabilidad, marquillado', cat:'Calidad', evi:'Lista de verificación'},
+        {id:'V4-03', act:'Consolidar registro fotográfico completo', cat:'Evidencia', evi:'Carpeta organizada'},
+        {id:'V4-04', act:'Completar informe de ejecución (plantilla Blueberry Group)', cat:'Documentación', evi:'Formato corporativo'},
+        {id:'V4-05', act:'Validación y firma de aceptación con cliente', cat:'Cierre', evi:'Firma digital/presencial'},
+        {id:'V4-06', act:'Entrega de documentación: informe, fotos, checklist, marquillado', cat:'Entrega', evi:'Paquete completo'},
+        {id:'V4-07', act:'Retroalimentación con equipo del cliente y lecciones aprendidas', cat:'Gestión', evi:'Acta de cierre'}
+      ],
+      reporte: [
+        {k:'Fecha', type:'date'}, {k:'Jornada', type:'text', pl:'Ej: Día 3'}, {k:'Enlaces completados (día)', type:'number', pl:'27'},
+        {k:'Enlaces acumulados', type:'text', pl:'81 / 185'}, {k:'% Progreso acumulado', type:'text', pl:'43.8%'},
+        {k:'Actividades realizadas', type:'textarea', pl:'Separe con ;'}, {k:'Incidencias / Bloqueantes', type:'textarea', pl:'Describir si aplica'},
+        {k:'HSE', type:'select', opts:['✅ Sin novedades','⚠️ Reportar detalle']}, {k:'Fotos adjuntas', type:'number', pl:'12'},
+        {k:'Próximo día', type:'text', pl:'Actividades planificadas'}, {k:'Firma ingeniero', type:'text', pl:'Nombre completo'}
+      ],
+      control: [
+        {d:1, m:0, obs:'Preparación'}, {d:2, m:27}, {d:3, m:27}, {d:4, m:27}, {d:5, m:27},
+        {d:6, m:27}, {d:7, m:27}, {d:8, m:23}, {d:9, m:0, obs:'Marquillado'}, {d:10, m:0, obs:'Cierre'}
+      ]
+    };
+
+    // ===== INICIALIZACIÓN =====
+    document.addEventListener('DOMContentLoaded', () => {
+      renderPhase('tb-fase1', fases.fase1, 'fase1');
+      renderPhase('tb-fase2', fases.fase2, 'fase2');
+      renderPhase('tb-fase3', fases.fase3, 'fase3');
+      renderPhase('tb-fase4', fases.fase4, 'fase4');
+      renderReporte();
+      renderControl();
+      loadGithubConfig();
+      updateProgressBars();
+    });
+
+    function renderPhase(tbodyId, data, phaseName) {
+      const tb = document.getElementById(tbodyId);
+      tb.innerHTML = '';
+      data.forEach((item, i) => {
+        const tr = document.createElement('tr');
+        let cols = '';
+        if (phaseName === 'fase1') {
+          cols = `<td>${item.id}</td><td>${item.act}</td><td>${item.cat}</td>
+                  <td><select class="status-select" onchange="updateProgressBars()"><option>Pendiente</option><option>En Progreso</option><option>Completado</option></select></td>
+                  <td><input type="text" placeholder="Detalles..."></td>`;
+        } else if (phaseName === 'fase2') {
+          cols = `<td>${item.id}</td><td>${item.act}</td><td>${item.mom}</td>
+                  <td><select class="status-select" onchange="updateProgressBars()"><option>Pendiente</option><option>En Progreso</option><option>Completado</option></select></td>
+                  <td>${item.meta}</td>
+                  <td><input type="text" placeholder="-"></td>
+                  <td><input type="text" placeholder="Detalles..."></td>`;
+        } else if (phaseName === 'fase3' || phaseName === 'fase4') {
+          cols = `<td>${item.id}</td><td>${item.act}</td><td>${item.cat}</td>
+                  <td><select class="status-select" onchange="updateProgressBars()"><option>Pendiente</option><option>En Progreso</option><option>Completado</option></select></td>
+                  <td><input type="text" placeholder="${phaseName==='fase3' ? item.ver : item.evi}"></td>`;
+        }
+        tr.innerHTML = cols;
+        tb.appendChild(tr);
+      });
+    }
+
+    function renderReporte() {
+      const tb = document.getElementById('tb-reporte');
+      tb.innerHTML = '';
+      fases.reporte.forEach(item => {
+        let input = '';
+        if (item.type === 'select') {
+          input = `<select>${item.opts.map(o => `<option>${o}</option>`).join('')}</select>`;
+        } else if (item.type === 'textarea') {
+          input = `<textarea rows="2" placeholder="${item.pl || ''}"></textarea>`;
+        } else {
+          input = `<input type="${item.type}" placeholder="${item.pl || ''}">`;
+        }
+        tb.innerHTML += `<tr><td>${item.k}</td><td>${input}</td></tr>`;
+      });
+    }
+
+    function renderControl() {
+      const tb = document.getElementById('tb-control');
+      tb.innerHTML = '';
+      fases.control.forEach(item => {
+        tb.innerHTML += `<tr>
+          <td>${item.d}</td><td>${item.m}</td>
+          <td><input type="number" min="0"></td>
+          <td><input type="number" min="0"></td>
+          <td><input type="text" placeholder="0%"></td>
+          <td><input type="text" placeholder="${item.obs || ''}"></td>
+        </tr>`;
+      });
+    }
+
+    function updateProgressBars() {
+      ['fase1','fase2','fase3','fase4'].forEach(f => {
+        const tbody = document.getElementById(f === 'fase1' ? 'tb-fase1' : f === 'fase2' ? 'tb-fase2' : f === 'fase3' ? 'tb-fase3' : 'tb-fase4');
+        const total = tbody.rows.length;
+        let completed = 0;
+        Array.from(tbody.querySelectorAll('select')).forEach(s => {
+          if (s.value === 'Completado') completed++;
+        });
+        const pct = total ? Math.round((completed / total) * 100) : 0;
+        const bar = document.getElementById(`prog-${f}`);
+        if (bar) {
+          bar.style.width = `${pct}%`;
+          bar.style.background = pct === 100 ? '#28a745' : '#4d9a4e';
+        }
+      });
+    }
+
+    function loadDiaFase2() {
+      const dia = document.getElementById('dia-fase2').value;
+      // En una app real, cargaría datos guardados por día. Aquí se resetea para reutilizar plantilla.
+      showNotification(`📅 Plantilla cargada para Día ${dia}`);
+      document.getElementById('tb-fase2').querySelectorAll('input').forEach(i => i.value = '');
+      document.getElementById('tb-fase2').querySelectorAll('select').forEach(s => s.value = 'Pendiente');
+      updateProgressBars();
+    }
+
+    // ===== EXPORTAR A EXCEL =====
+    function exportToExcel() {
+      const wb = XLSX.utils.book_new();
+      document.querySelectorAll('input, select, textarea').forEach(el => {
+        const val = el.type === 'checkbox' ? (el.checked ? '✅' : '⬜') : el.value || '';
+        el.setAttribute('data-export', val);
+      });
+      const map = { 'tb-fase1': 'Fase1_Preparacion', 'tb-fase2': 'Fase2_Instalacion', 'tb-fase3': 'Fase3_Marquillado', 'tb-fase4': 'Fase4_Validacion', 'tb-reporte': 'Reporte_Diario', 'tb-control': 'Control_Progreso' };
+      Object.entries(map).forEach(([id, name]) => {
+        const table = document.getElementById(id).closest('table').cloneNode(true);
+        table.querySelectorAll('input, select, textarea').forEach(el => {
+          const span = document.createElement('span');
+          span.textContent = el.getAttribute('data-export') || '';
+          el.replaceWith(span);
+        });
+        XLSX.utils.book_append_sheet(wb, XLSX.utils.table_to_sheet(table), name);
+      });
+      const date = new Date().toISOString().slice(0,10);
+      XLSX.writeFile(wb, `Checklists_SmartHands_${date}.xlsx`);
+      showNotification('✅ Archivo Excel descargado correctamente');
+    }
+
+    // ===== GITHUB CONFIG =====
+    function saveGithubConfig() {
+      const cfg = {
+        user: document.getElementById('github-user').value.trim(),
+        repo: document.getElementById('github-repo').value.trim(),
+        token: document.getElementById('github-token').value.trim()
+      };
+      if (!cfg.user || !cfg.repo || !cfg.token) {
+        showNotification('⚠️ Completa todos los campos de GitHub', true);
+        return;
+      }
+      localStorage.setItem('gh_config', JSON.stringify(cfg));
+      showNotification('✅ Configuración guardada localmente');
+    }
+
+    function loadGithubConfig() {
+      const saved = localStorage.getItem('gh_config');
+      if (saved) {
+        const cfg = JSON.parse(saved);
+        document.getElementById('github-user').value = cfg.user;
+        document.getElementById('github-repo').value = cfg.repo;
+        document.getElementById('github-token').value = cfg.token;
+      }
+    }
+
+    function getGithubHeaders() {
+      const cfg = JSON.parse(localStorage.getItem('gh_config') || '{}');
+      if (!cfg.token) throw new Error('Token no configurado');
+      return { 'Authorization': `token ${cfg.token}`, 'X-GitHub-Api-Version': '2022-11-28' };
+    }
+
+    function getGithubApiUrl() {
+      const cfg = JSON.parse(localStorage.getItem('gh_config') || '{}');
+      return `https://api.github.com/repos/${cfg.user}/${cfg.repo}`;
+    }
+
+    // ===== REGISTRO FOTOGRÁFICO =====
+    let pendingPhotos = [];
+
+    const dropZone = document.getElementById('drop-zone');
+    ['dragenter','dragover'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.add('dragover'); }));
+    ['dragleave','drop'].forEach(e => dropZone.addEventListener(e, ev => { ev.preventDefault(); dropZone.classList.remove('dragover'); }));
+    dropZone.addEventListener('drop', e => {
+      handleFiles(e.dataTransfer.files);
+    });
+
+    function handleFileSelect(e) { handleFiles(e.target.files); }
+
+    function handleFiles(files) {
+      Array.from(files).forEach(f => {
+        if (!f.type.startsWith('image/')) return;
+        if (f.size > 4 * 1024 * 1024) {
+          showNotification(`⚠️ ${f.name} excede 4MB`, true);
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = e => {
+          pendingPhotos.push({ name: f.name, data: e.target.result });
+          renderGallery();
+        };
+        reader.readAsDataURL(f);
+      });
+    }
+
+    function renderGallery() {
+      const gal = document.getElementById('photo-gallery');
+      gal.innerHTML = pendingPhotos.map((p, i) => `
+        <div class="gallery-item">
+          <img src="${p.data}" alt="${p.name}">
+          <div class="filename">${p.name}</div>
+        </div>`).join('');
+    }
+
+    async function uploadAllPhotos() {
+      const cfg = JSON.parse(localStorage.getItem('gh_config') || '{}');
+      if (!cfg.token) {
+        showNotification('⚠️ Configura tu repositorio primero', true);
+        return;
+      }
+      if (!pendingPhotos.length) {
+        showNotification('⚠️ No hay fotos seleccionadas', true);
+        return;
+      }
+      let folder = document.getElementById('photo-folder').value.trim();
+      if (!folder) {
+        const today = new Date().toISOString().slice(0,10);
+        folder = `photos/${today}`;
+        document.getElementById('photo-folder').value = folder;
+      }
+      const progress = document.getElementById('upload-progress');
+      progress.innerHTML = '⏳ Subiendo fotos...';
+      let success = 0;
+
+      for (const photo of pendingPhotos) {
+        try {
+          const path = `${folder}/${Date.now()}_${photo.name.replace(/\s/g, '_')}`;
+          const b64 = photo.data.split(',')[1];
+          const res = await fetch(`${getGithubApiUrl()}/contents/${encodeURIComponent(path)}`, {
+            method: 'PUT',
+            headers: getGithubHeaders(),
+            body: JSON.stringify({ message: `📷 Avance datacenter - ${new Date().toISOString()}`, content: b64 })
+          });
+          if (!res.ok) throw new Error(await res.text());
+          success++;
+        } catch (err) {
+          showNotification(`❌ Error en ${photo.name}: ${err.message}`, true);
+        }
+      }
+
+      progress.innerHTML = `✅ ${success} foto(s) subida(s) correctamente`;
+      if (success === pendingPhotos.length) {
+        pendingPhotos = [];
+        renderGallery();
+        showNotification('✅ Todas las fotos subidas a GitHub');
+      }
+    }
+
+    // ===== UTILIDADES =====
+    function showNotification(msg, isError = false) {
+      const el = document.getElementById('notification');
+      el.textContent = msg;
+      el.className = 'notification show' + (isError ? ' error' : '');
+      setTimeout(() => el.classList.remove('show'), 3000);
+    }
+
+    function scrollToSection(id) {
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    }
+
+    document.querySelectorAll('nav a').forEach(a => {
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const target = a.getAttribute('href').substring(1);
+        scrollToSection(target);
+        document.querySelectorAll('nav a').forEach(n => n.classList.remove('active'));
+        a.classList.add('active');
+      });
+    });
+  </script>
+</body>
+</html>
